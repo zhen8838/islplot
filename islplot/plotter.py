@@ -1,7 +1,8 @@
 import matplotlib.pyplot as _plt
+from matplotlib.ticker import MaxNLocator
 import islpy as _islpy
 from islplot.support import *
-from typing import Tuple
+from typing import Tuple, List, Union
 
 
 def plot_set_points(set_data, color="black", size=10, marker="o", scale=1):
@@ -45,6 +46,7 @@ def _plot_arrow(start, end, graph, *args, **kwargs):
                                    shrinkA=0,
                                    shrinkB=0,
                                    linewidth=width,
+                                   mutation_scale=20,
                                    color=color)
                    )
     return
@@ -56,18 +58,20 @@ def _plot_arrow(start, end, graph, *args, **kwargs):
                                  shrinkA=shrink,
                                  shrinkB=shrink,
                                  linewidth=width,
+                                 mutation_scale=20,
                                  color=color)
                  )
 
 
-def plot_map(map_data, edge_style="-", arrow_width=0.001, start_color="blue", end_color="orange", line_color="black", size=3,
-             scale=1):
+def plot_map(map_datas: Union[List[_islpy.UnionMap], _islpy.UnionMap], edge_style="-|>", edge_width=1,
+             start_color="blue", end_color="orange", line_color="black", marker_size=7,
+             scale=1, shrink=1):
   """
   Given a map from a two dimensional set to another two dimensional set this
   functions prints the relations in this map as arrows going from the input
   to the output element.
 
-  :param map_data: The islpy.Map to plot.
+  :param map_datas: The islpy.Map to plot.
   :param color: The color of the arrows.
   :param edge_style: The style used to plot the arrows.
   :param edge_width: The width used to plot the arrows.
@@ -78,24 +82,30 @@ def plot_map(map_data, edge_style="-", arrow_width=0.001, start_color="blue", en
   all_start: Tuple[int, int] = []
   all_ends: Tuple[int, int] = []
   start_points = []
-
-  map_data.range().foreach_point(start_points.append)
-  for start in start_points:
-    end_points = []
-    limited = map_data.intersect_range(_islpy.BasicSet.from_point(start))
-    limited.domain().foreach_point(end_points.append)
-    s = get_point_coordinates(start, scale)
-    all_start.append(s)
-    for end in end_points:
-      e = get_point_coordinates(end, scale)
-      all_ends.append(e)
-      _plt.arrow(s[0], s[1], e[0] - s[0], e[1] - s[1],
-                 color=line_color, linestyle=edge_style,
-                 width=arrow_width, head_width=arrow_width * 150, head_length=arrow_width * 150, length_includes_head=True)
-  _plt.plot([x[0] for x in all_start], [x[1]
-            for x in all_start], "o", markersize=size, color=start_color, lw=0)
-  _plt.plot([p[0] for p in all_ends], [p[1]
-            for p in all_ends], "o", markersize=size, color=end_color, lw=0)
+  if not isinstance(map_datas, list):
+    map_datas = [map_datas]
+  for map_data in map_datas:
+    map_data.range().foreach_point(start_points.append)
+    for start in start_points:
+      end_points = []
+      limited = map_data.intersect_range(_islpy.BasicSet.from_point(start))
+      limited.domain().foreach_point(end_points.append)
+      s = get_point_coordinates(start, scale)
+      all_start.append(s)
+      for end in end_points:
+        e = get_point_coordinates(end, scale)
+        all_ends.append(e)
+        _plot_arrow(e,
+                    s,
+                    _plt, color=line_color, style=edge_style,
+                    width=edge_width, shrink=shrink)
+        # _plt.arrow(s[0], s[1], e[0] - s[0], e[1] - s[1],
+        #            color=line_color, linestyle=edge_style,
+        #            width=arrow_width, head_width=arrow_width * 150, head_length=arrow_width * 150, length_includes_head=True)
+    _plt.plot([x[0] for x in all_start], [x[1]
+              for x in all_start], "o", markersize=marker_size, color=start_color, lw=0)
+    _plt.plot([p[0] for p in all_ends], [p[1]
+              for p in all_ends], "o", markersize=marker_size, color=end_color, lw=0)
 
 
 def plot_bset_shape(bset_data, show_vertices=True, color="gray",

@@ -7,7 +7,7 @@ def get_point_coordinates(point, scale=1) -> Tuple[int, int]:
   result = []
   for i in range(point.space.dim(_islpy.dim_type.set)):
     result.append(int(point.get_coordinate_val(_islpy.dim_type.set, i)
-                      .get_num_si()) / scale)
+                      .get_num_si()) // scale)
   if(len(result) == 1):
     result.append(0)
   return result
