@@ -15,7 +15,7 @@ def plot_set_points(set_datas: Union[_islpy.Set, List[_islpy.Set]], color="black
   :param marker: The marker used to mark a point.
   :param scale: Scale the values.
   """
-  if isinstance(set_datas, _islpy.Set):
+  if isinstance(set_datas, (_islpy.Set, _islpy.BasicSet, _islpy.UnionSet)):
     set_datas = [set_datas]
   for set_data in set_datas:
     points = []
