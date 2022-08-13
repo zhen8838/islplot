@@ -5,21 +5,24 @@ from islplot.support import *
 from typing import Tuple, List, Union
 
 
-def plot_set_points(set_data, color="black", size=10, marker="o", scale=1):
+def plot_set_points(set_datas: Union[_islpy.Set, List[_islpy.Set]], color="black", size=10, marker="o", scale=1):
   """
   Plot the individual points of a two dimensional isl set.
 
-  :param set_data: The islpy.Set to plot.
+  :param set_datas: The islpy.Set to plot.
   :param color: The color of the points.
   :param size: The diameter of the points.
   :param marker: The marker used to mark a point.
   :param scale: Scale the values.
   """
-  points = []
-  points = bset_get_points(set_data, scale=scale)
-  dimX = [x[0] for x in points]
-  dimY = [x[1] for x in points]
-  _plt.plot(dimX, dimY, marker, markersize=size, color=color, lw=0)
+  if isinstance(set_datas, _islpy.Set):
+    set_datas = [set_datas]
+  for set_data in set_datas:
+    points = []
+    points = bset_get_points(set_data, scale=scale)
+    dimX = [x[0] for x in points]
+    dimY = [x[1] for x in points]
+    _plt.plot(dimX, dimY, marker, markersize=size, color=color, lw=0)
 
 
 def _plot_arrow(start, end, graph, *args, **kwargs):
